@@ -249,3 +249,18 @@ h1 {
   font-size: 0.875rem;
   color: #6b7280;
 }
+
+/* ... CSS existente ... */
+
+button:hover {
+  opacity: 0.9;
+}
+
+input:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.hidden {
+  display: none;
+}
