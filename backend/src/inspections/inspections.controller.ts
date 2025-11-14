@@ -14,12 +14,12 @@ import { CreateInspectionDto } from './dto/create-inspection.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('inspections')
-@UseGuards(JwtAuthGuard) // Proteger todas as rotas
+@UseGuards(JwtAuthGuard)
 export class InspectionsController {
   constructor(private readonly inspectionsService: InspectionsService) {}
 
   @Post('bulk')
-  @Throttle({ default: { limit: 3, ttl: 60000 } }) // 3 uploads por minuto
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
   async createBulk(
     @Body() inspections: CreateInspectionDto[],
     @Request() req: any,
@@ -40,13 +40,18 @@ export class InspectionsController {
         );
       }
 
-      // Adicionar informações do usuário autenticado
-      const inspectionsWithUser = inspections.map(inspection => ({
-        ...inspection,
-        uploaded_by: req.user.email, // Email do usuário autenticado
-      }));
+      // ✅ ADICIONAR EMAIL DO USUÁRIO EM CADA INSPEÇÃO
+      const userEmail = req.user.email;
+      
+      if (!userEmail) {
+        throw new HttpException(
+          'Usuário não autenticado',
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
 
-      return await this.inspectionsService.createBulk(inspectionsWithUser);
+      // Passar o email do usuário para o service
+      return await this.inspectionsService.createBulk(inspections, userEmail);
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;

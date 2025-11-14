@@ -1,35 +1,24 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { LogIn, UserPlus, AlertCircle } from 'lucide-react';
+import { LogIn, AlertCircle } from 'lucide-react';
 
 export default function Login() {
-  const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
 
-  const { signIn, signUp } = useAuth();
+  const { signIn } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setSuccess(null);
     setLoading(true);
 
     try {
-      if (isSignUp) {
-        await signUp(email, password);
-        setSuccess('Conta criada! Verifique seu email para confirmar.');
-        setEmail('');
-        setPassword('');
-        setIsSignUp(false);
-      } else {
-        await signIn(email, password);
-      }
+      await signIn(email, password);
     } catch (err: any) {
-      setError(err.message || 'Erro ao autenticar');
+      setError(err.message || 'Erro ao autenticar. Verifique suas credenciais.');
     } finally {
       setLoading(false);
     }
@@ -40,9 +29,9 @@ export default function Login() {
       <div className="card" style={{ maxWidth: '400px' }}>
         <div className="header">
           <div className="icon-circle">
-            {isSignUp ? <UserPlus size={32} /> : <LogIn size={32} />}
+            <LogIn size={32} />
           </div>
-          <h1>{isSignUp ? 'Criar Conta' : 'Login'}</h1>
+          <h1>Login</h1>
           <p className="subtitle">iRisk Inspections</p>
         </div>
 
@@ -64,6 +53,7 @@ export default function Login() {
                 fontSize: '1rem',
               }}
               placeholder="seu@email.com"
+              autoComplete="email"
             />
           </div>
 
@@ -85,6 +75,7 @@ export default function Login() {
                 fontSize: '1rem',
               }}
               placeholder="••••••••"
+              autoComplete="current-password"
             />
           </div>
 
@@ -92,29 +83,8 @@ export default function Login() {
             type="submit"
             disabled={loading}
             className={`btn-upload ${loading ? 'disabled' : ''}`}
-            style={{ marginBottom: '1rem' }}
           >
-            {loading ? 'Carregando...' : isSignUp ? 'Criar Conta' : 'Entrar'}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              setIsSignUp(!isSignUp);
-              setError(null);
-              setSuccess(null);
-            }}
-            style={{
-              width: '100%',
-              background: 'transparent',
-              color: '#2563eb',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '0.875rem',
-              textDecoration: 'underline',
-            }}
-          >
-            {isSignUp ? 'Já tem conta? Entrar' : 'Não tem conta? Criar'}
+            {loading ? 'Autenticando...' : 'Entrar'}
           </button>
         </form>
 
@@ -127,14 +97,17 @@ export default function Login() {
           </div>
         )}
 
-        {success && (
-          <div className="alert alert-success" style={{ marginTop: '1rem' }}>
-            <AlertCircle className="alert-icon" size={20} />
-            <div>
-              <p>{success}</p>
-            </div>
-          </div>
-        )}
+        <div style={{ 
+          marginTop: '1.5rem', 
+          padding: '1rem', 
+          background: '#f9fafb',
+          borderRadius: '0.5rem',
+          fontSize: '0.875rem',
+          color: '#6b7280',
+          textAlign: 'center'
+        }}>
+          <p>Entre em contato com o administrador para criar sua conta.</p>
+        </div>
       </div>
     </div>
   );

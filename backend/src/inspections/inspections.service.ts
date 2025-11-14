@@ -20,24 +20,24 @@ export class InspectionsService {
         this.supabase = createClient(url, key);
     }
 
-    async createBulk(inspections: CreateInspectionDto[]) {
+    // ✅ ADICIONAR PARÂMETRO userEmail
+    async createBulk(inspections: CreateInspectionDto[], userEmail: string) {
         const startTime = Date.now();
-        this.logger.log(`Processing bulk insert of ${inspections.length} inspections`);
+        this.logger.log(`Processing bulk insert of ${inspections.length} inspections for user: ${userEmail}`);
 
-        // Limpar dados antes de inserir
+        // ✅ Adicionar email do usuário em TODAS as inspeções
         const validInspections = inspections.map(item => ({
             ...item,
+            uploaded_by: userEmail, // ← FORÇAR o email do usuário autenticado
             data_proposta: item.data_proposta?.includes('undefined') ? null : item.data_proposta,
             data_atribuicao_empresa: item.data_atribuicao_empresa?.includes('undefined') ? null : item.data_atribuicao_empresa,
             data_atribuicao_inspetor: item.data_atribuicao_inspetor?.includes('undefined') ? null : item.data_atribuicao_inspetor,
         }));
 
         try {
-            // Inserir em batches de 1000 para performance
-            // Inserir em batches de 1000 para performance
             const batchSize = 1000;
-            const batches: CreateInspectionDto[][] = []; // ✅ Correção
-            const results: CreateInspectionDto[] = [];   // ✅ Correção
+            const batches: any[] = [];
+            const results: any[] = [];
 
             for (let i = 0; i < validInspections.length; i += batchSize) {
                 batches.push(validInspections.slice(i, i + batchSize));
@@ -57,9 +57,8 @@ export class InspectionsService {
                 }
 
                 totalInserted += data.length;
-                results.push(...data); // ✅ Agora o TS entende o tipo
+                results.push(...data);
             }
-
 
             const duration = Date.now() - startTime;
             this.logger.log(`Successfully inserted ${totalInserted} inspections in ${duration}ms`);
@@ -71,7 +70,7 @@ export class InspectionsService {
             };
         } catch (error) {
             const duration = Date.now() - startTime;
-            this.logger.error(`Failed to insert inspections after ${duration}ms`, error.message);
+            this.logger.error(`Failed to insert inspections after ${duration}ms`, error instanceof Error ? error.message : 'Unknown error');
 
             throw new HttpException(
                 'Erro ao inserir inspeções no banco de dados',
@@ -86,9 +85,9 @@ export class InspectionsService {
         const { data, error } = await this.supabase
             .from('irisk_inspecoes')
             .select('*')
-            .eq('uploaded_by', userEmail) // Filtrar pelo usuário
+            .eq('uploaded_by', userEmail)
             .order('created_at', { ascending: false })
-            .limit(1000); // Limitar resultados
+            .limit(1000);
 
         if (error) {
             this.logger.error('Failed to fetch inspections', error.message);

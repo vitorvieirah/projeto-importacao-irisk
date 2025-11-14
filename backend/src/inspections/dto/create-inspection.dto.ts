@@ -132,9 +132,4 @@ export class CreateInspectionDto {
   @IsDateString()
   @IsOptional()
   ultima_tarefa?: string | null;
-
-  @IsString()
-  @IsOptional()
-  @MaxLength(255)
-  uploaded_by?: string | null;
 }

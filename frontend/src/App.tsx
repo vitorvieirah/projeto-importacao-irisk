@@ -155,6 +155,7 @@ export default function App() {
             data_ultima_atividade: parseDate(row[22]),
             atividade_atual: cleanString(row[23]),
             ultima_tarefa: parseDate(row[24]),
+            // uploaded_by será adicionado automaticamente pelo backend
           };
         })
         .filter((inspection) => inspection !== null && inspection.nr_inspecao);
