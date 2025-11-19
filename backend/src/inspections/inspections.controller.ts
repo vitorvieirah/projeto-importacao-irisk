@@ -25,7 +25,6 @@ export class InspectionsController {
     @Request() req: any,
   ) {
     try {
-      // Validações
       if (!Array.isArray(inspections) || inspections.length === 0) {
         throw new HttpException(
           'Dados inválidos: array vazio',
@@ -40,7 +39,6 @@ export class InspectionsController {
         );
       }
 
-      // ✅ ADICIONAR EMAIL DO USUÁRIO EM CADA INSPEÇÃO
       const userEmail = req.user.email;
       
       if (!userEmail) {
@@ -50,8 +48,19 @@ export class InspectionsController {
         );
       }
 
-      // Passar o email do usuário para o service
-      return await this.inspectionsService.createBulk(inspections, userEmail);
+      const result = await this.inspectionsService.createBulk(inspections, userEmail);
+      
+      // ✅ Retornar informações sobre duplicatas
+      return {
+        success: result.success,
+        message: result.duplicates > 0 
+          ? `${result.inserted} inspeções importadas. ${result.duplicates} duplicatas ignoradas.`
+          : `${result.inserted} inspeções importadas com sucesso.`,
+        count: result.inserted,
+        duplicates: result.duplicates,
+        duplicateList: result.duplicateList,
+        data: result.data,
+      };
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;

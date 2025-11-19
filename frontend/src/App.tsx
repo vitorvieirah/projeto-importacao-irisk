@@ -12,7 +12,13 @@ export default function App() {
   const { user, session, loading: authLoading, signOut } = useAuth();
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [result, setResult] = useState<{ success: boolean; count: number; message: string } | null>(null);
+  const [result, setResult] = useState<{ 
+    success: boolean; 
+    count: number; 
+    message: string;
+    duplicates?: number;
+    duplicateList?: Array<{ nr_inspecao: string }>;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const parseDate = (value: any) => {
