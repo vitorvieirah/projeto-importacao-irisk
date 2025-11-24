@@ -13,11 +13,12 @@ async function bootstrap() {
 
   // CORS configurado
   app.enableCors({
-    origin: configService.get<string>('FRONTEND_URL'),
-    methods: ['GET', 'POST'],
+    origin: (origin, callback) => {
+      callback(null, origin || '*'); // devolve a mesma origin
+    },
     credentials: true,
-    maxAge: 3600,
   });
+
 
   // Validação global
   app.useGlobalPipes(
@@ -33,7 +34,7 @@ async function bootstrap() {
 
   const port = configService.get<number>('PORT') || 3000;
   await app.listen(port, '0.0.0.0');
-  
+
   console.log(`🚀 Server running on http://localhost:${port}`);
 }
 bootstrap();
