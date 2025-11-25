@@ -13,10 +13,10 @@ async function bootstrap() {
 
   // CORS configurado
   app.enableCors({
-    origin: (origin, callback) => {
-      callback(null, origin || '*'); // devolve a mesma origin
-    },
+    origin: configService.get<string>('FRONTEND_URL'),
+    methods: ['GET', 'POST'],
     credentials: true,
+    maxAge: 3600,
   });
 
 
